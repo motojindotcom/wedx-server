@@ -1,6 +1,16 @@
 #!/bin/bash
 
-az extension add --name timeseriesinsights --yes --only-show-errors
+# install the Time Series Insights extension
+echo -e "Checking timeseriesinsights extension."
+az extension show -n timeseriesinsights -o none &> /dev/null
+if [ $? -ne 0 ]; then
+    echo -e "timeseriesinsights extension not found. Installing timeseriesinsights."
+    az extension add --name timeseriesinsights &> /dev/null
+    echo -e "timeseriesinsights extension is now installed."
+else
+    az extension update --name timeseriesinsights &> /dev/null
+    echo -e "timeseriesinsights extension is up to date."														  
+fi
 
 resourceGroup=$1
 tsiName=$2

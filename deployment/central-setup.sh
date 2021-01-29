@@ -1,6 +1,16 @@
 #!/bin/bash
 
-az extension add --name azure-iot --yes --only-show-errors
+# install the Azure IoT extension
+echo -e "Checking azure-iot extension."
+az extension show -n azure-iot -o none &> /dev/null
+if [ $? -ne 0 ]; then
+    echo -e "azure-iot extension not found. Installing azure-iot."
+    az extension add --name azure-iot &> /dev/null
+    echo -e "azure-iot extension is now installed."
+else
+    az extension update --name azure-iot &> /dev/null
+    echo -e "azure-iot extension is up to date."														  
+fi
 
 resourceGroup=$1
 webAppName=$2
