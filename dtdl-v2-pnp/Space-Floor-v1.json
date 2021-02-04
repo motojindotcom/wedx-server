@@ -1,0 +1,63 @@
+{
+    "@id": "dtmi:com:motojin:Space:Floor;1",
+    "@type": "Interface",    
+    "displayName": "Floor",
+    "description": "Floor Interface Model",
+    "contents": [
+        {
+            "@type": "Property",
+            "name": "DisplayName",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "Location",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "Temperature",
+            "schema": "double"
+        },
+        {
+            "@type": "Property",
+            "name": "ComfortIndex",
+            "schema": "double"
+        },
+        {
+            "@type": "Relationship",
+            "name": "Contains",
+            "displayName": "Contains",
+            "properties": [
+                {
+                    "@type": "Property",
+                    "name": "OwnershipUser",
+                    "schema": "string"
+                },
+                {
+                    "@type": "Property",
+                    "name": "OwnershipDepartment",
+                    "schema": "string"
+                }
+            ]
+        },
+        {
+            "@type": "Relationship",
+            "name": "Contained",
+            "displayName": "Contained",
+            "properties": [
+                {
+                    "@type": "Property",
+                    "name": "OwnershipUser",
+                    "schema": "string"
+                },
+                {
+                    "@type": "Property",
+                    "name": "OwnershipDepartment",
+                    "schema": "string"
+                }
+            ]
+        }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+}
