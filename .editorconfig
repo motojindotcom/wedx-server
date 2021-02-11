@@ -19,3 +19,8 @@ indent_size = 4
 
 # remove any whitespace characters preceding newline characters
 trim_trailing_whitespace = true
+
+# Unix-style newlines with a newline ending every file
+[{*.json,*.yml}]
+# 2 space indentation
+indent_size = 2
