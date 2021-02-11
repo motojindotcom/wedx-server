@@ -9,7 +9,7 @@ if [ $? -ne 0 ]; then
     echo -e "timeseriesinsights extension is now installed."
 else
     az extension update --name timeseriesinsights &> /dev/null
-    echo -e "timeseriesinsights extension is up to date."														  
+    echo -e "timeseriesinsights extension is up to date."
 fi
 
 resourceGroup=$1
@@ -41,9 +41,9 @@ tsiClientId=$(az webapp config appsettings set --name ${webAppName} --resource-g
 
 tsiClientSecret=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__Tsi__ClientSecret=${servicePrincipalSecret} --query "[?name=='WedxAppConfig__Tsi__ClientSecret'].[value]" -o tsv)
 
-accessPolicyServicePrincipalObjectId=$(az timeseriesinsights access-policy list -g ${resourceGroup} --environment-name ${tsiName} --query "value[].{Id:principalObjectId}[?contains(Id,'${servicePrincipalObjectId}')].Id" -o tsv --only-show-errors)
+accessPolicyServicePrincipalObjectId=$(az tsi access-policy list -g ${resourceGroup} --environment-name ${tsiName} --query "value[].{Id:principalObjectId}[?contains(Id,'${servicePrincipalObjectId}')].Id" -o tsv --only-show-errors)
 if [ -z $accessPolicyServicePrincipalObjectId ]; then
-    accessPolicyResponse=$(az timeseriesinsights access-policy create -g ${resourceGroup} --environment-name ${tsiName} -n ${servicePrincipalAppName} --principal-object-id ${servicePrincipalObjectId} --roles Reader Contributor --only-show-errors)
+    accessPolicyResponse=$(az tsi access-policy create -g ${resourceGroup} --environment-name ${tsiName} -n ${servicePrincipalAppName} --principal-object-id ${servicePrincipalObjectId} --roles Reader Contributor --only-show-errors)
 fi
 
 echo "Complete configuration"
