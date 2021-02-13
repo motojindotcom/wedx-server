@@ -12,13 +12,14 @@ else
     echo -e "timeseriesinsights extension is up to date."
 fi
 
+# script configuration
 resourceGroup=$1
 tsiName=$2
 webAppName=$3
 webAppUrl="${4:-https://${webAppName}.azurewebsites.net/}"
 
 subscriptionId=$(az account show --query id -o tsv)
-servicePrincipalAppName='WedxServerIotEdgeManagementTsi'
+servicePrincipalAppName="WedxServer-${tsiName}"
 
 servicePrincipalAppId=$(az ad app list --all --query '[].{AppId:appId}' --display-name $servicePrincipalAppName -o tsv)
 if [ -z $servicePrincipalAppId ]; then
@@ -35,11 +36,10 @@ servicePrincipalTenantId=$(az ad sp show --id ${servicePrincipalAppId} --query a
 
 az ad app update --id ${servicePrincipalAppId} --reply-urls ${webAppUrl}
 
-tsiTenantId=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__Tsi__TenantId=${servicePrincipalTenantId} --query "[?name=='WedxAppConfig__Tsi__TenantId'].[value]" -o tsv)
-
-tsiClientId=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__Tsi__ClientId=${servicePrincipalAppId} --query "[?name=='WedxAppConfig__Tsi__ClientId'].[value]" -o tsv)
-
-tsiClientSecret=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__Tsi__ClientSecret=${servicePrincipalSecret} --query "[?name=='WedxAppConfig__Tsi__ClientSecret'].[value]" -o tsv)
+# update WeDX Server web app
+CMDRUN=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__Tsi__TenantId=${servicePrincipalTenantId} --query "[?name=='WedxAppConfig__Tsi__TenantId'].[value]" -o tsv)
+CMDRUN=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__Tsi__ClientId=${servicePrincipalAppId} --query "[?name=='WedxAppConfig__Tsi__ClientId'].[value]" -o tsv)
+CMDRUN=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__Tsi__ClientSecret=${servicePrincipalSecret} --query "[?name=='WedxAppConfig__Tsi__ClientSecret'].[value]" -o tsv)
 
 accessPolicyServicePrincipalObjectId=$(az tsi access-policy list -g ${resourceGroup} --environment-name ${tsiName} --query "value[].{Id:principalObjectId}[?contains(Id,'${servicePrincipalObjectId}')].Id" -o tsv --only-show-errors)
 if [ -z $accessPolicyServicePrincipalObjectId ]; then
