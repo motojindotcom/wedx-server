@@ -9,7 +9,7 @@ if [ $? -ne 0 ]; then
     echo -e "azure-iot extension is now installed."
 else
     az extension update --name azure-iot &> /dev/null
-    echo -e "azure-iot extension is up to date."														  
+    echo -e "azure-iot extension is up to date."
 fi
 
 resourceGroup=$1
@@ -36,10 +36,9 @@ if [[ -z $applicationJsonToken ]]; then
   exit 1
 fi
 
-applicationToken=$(echo $applicationJsonToken | jq -r '.token' 2> /dev/null)
-
-centralSubdomain=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__IotCentral__Subdomain=${subdomain} --query "[?name=='WedxAppConfig__IotCentral__Subdomain'].[value]" -o tsv)
-
-centralAppToken=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__IotCentral__ApiToken="${applicationToken}" --query "[?name=='WedxAppConfig__IotCentral__ApiToken'].[value]" -o tsv)
+# update WeDX Server web app
+CMDRUN=$(echo $applicationJsonToken | jq -r '.token' 2> /dev/null)
+CMDRUN=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__IotCentral__Subdomain=${subdomain} --query "[?name=='WedxAppConfig__IotCentral__Subdomain'].[value]" -o tsv)
+CMDRUN=$(az webapp config appsettings set --name ${webAppName} --resource-group ${resourceGroup} --settings WedxAppConfig__IotCentral__ApiToken="${applicationToken}" --query "[?name=='WedxAppConfig__IotCentral__ApiToken'].[value]" -o tsv)
 
 echo "Complete configuration"
