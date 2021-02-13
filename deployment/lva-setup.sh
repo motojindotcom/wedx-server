@@ -9,15 +9,17 @@ if [ $? -ne 0 ]; then
     echo -e "azure-iot extension is now installed."
 else
     az extension update --name azure-iot &> /dev/null
-    echo -e "azure-iot extension is up to date."														  
+    echo -e "azure-iot extension is up to date."
 fi
 
-# script configuration 
+# script configuration
 RESOURCE_GROUP=$1
 AMS_ACCOUNT=$2
 WEB_APP_NAME=$3
-SPN="WedxServerIotEdgeManagementAms"
-ROLE_DEFINITION_NAME="WeDX LVAEdge User"
+
+SPN="WedxServer-${AMS_ACCOUNT}"
+ROLE_DEFINITION_NAME="WedxServer-Role-${AMS_ACCOUNT}"
+AMS_LIVE_EVENT_NAME="liveevent"
 
 # check if we need to log in
 # if we are executing in the Azure Cloud Shell, we should already be logged in
@@ -37,7 +39,7 @@ If you want to change to a different subscription, enter the name or id.
 Or just press enter to continue with the current subscription."
 read -p ">> " SUBSCRIPTION_ID
 if ! test -z "$SUBSCRIPTION_ID"
-then 
+then
     az account set -s "$SUBSCRIPTION_ID"
     echo -e "Now using:"
     az account show --query '[name,id]'
@@ -87,7 +89,7 @@ fi
 OBJECT_ID=$(az ad sp show --id ${AAD_SERVICE_PRINCIPAL_ID} --query 'objectId' | tr -d \")
 
 # create role assignment
-az role assignment create --role "$ROLE_DEFINITION_NAME" --assignee-object-id $OBJECT_ID -o none
+az role assignment create --role $ROLE_DEFINITION_NAME --assignee-object-id $OBJECT_ID -o none
 echo -e "The service principal with object id ${OBJECT_ID} is now linked with custom role ${ROLE_DEFINITION_NAME}."
 
 # write env file for edge deployment
@@ -98,6 +100,12 @@ echo -e "AAD_TENANT_ID=$AAD_TENANT_ID"
 echo -e "AAD_SERVICE_PRINCIPAL_ID=$AAD_SERVICE_PRINCIPAL_ID"
 echo -e "AAD_SERVICE_PRINCIPAL_SECRET=$AAD_SERVICE_PRINCIPAL_SECRET"
 
+# create live event
+AMS_LIVE_EVENT_LIST=$(az ams live-event list --account-name $AMS_ACCOUNT --resource-group $RESOURCE_GROUP --query "[].{liveEventName:name}" -o tsv)
+if [ -z $AMS_LIVE_EVENT_LIST ]; then
+  AMS_LIVE_EVENT_LIST=$(az ams live-event create --account-name $AMS_ACCOUNT --ips "AllowAll" --name $AMS_LIVE_EVENT_NAME --resource-group $RESOURCE_GROUP --streaming-protocol "RTMP" --query "name" -o tsv)
+fi
+
 # update WeDX Server web app
 CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__MediaServices__SubscriptionId=${SUBSCRIPTION_ID} --query "[?name=='WedxAppConfig__MediaServices__SubscriptionId'].[value]" -o tsv)
 CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__MediaServices__ResourceGroup=${RESOURCE_GROUP} --query "[?name=='WedxAppConfig__MediaServices__ResourceGroup'].[value]" -o tsv)
@@ -105,5 +113,6 @@ CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-grou
 CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__MediaServices__TenantId=${AAD_TENANT_ID} --query "[?name=='WedxAppConfig__MediaServices__TenantId'].[value]" -o tsv)
 CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__MediaServices__ServicePrincipalId=${AAD_SERVICE_PRINCIPAL_ID} --query "[?name=='WedxAppConfig__MediaServices__ServicePrincipalId'].[value]" -o tsv)
 CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__MediaServices__ServicePrincipalSecret=${AAD_SERVICE_PRINCIPAL_SECRET} --query "[?name=='WedxAppConfig__MediaServices__ServicePrincipalSecret'].[value]" -o tsv)
+CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__MediaServices__LiveEventName=${AMS_LIVE_EVENT_LIST} --query "[?name=='WedxAppConfig__MediaServices__LiveEventName'].[value]" -o tsv)
 
 echo -e "Complete configuration"
