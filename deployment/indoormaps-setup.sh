@@ -9,14 +9,14 @@ if [ $? -ne 0 ]; then
     echo -e "azure-iot extension is now installed."
 else
     az extension update --name azure-iot &> /dev/null
-    echo -e "azure-iot extension is up to date."														  
+    echo -e "azure-iot extension is up to date."
 fi
 
-# script configuration 
+# script configuration
 RESOURCE_GROUP=$1
 WEB_APP_NAME=$2
 FUNC_APP_NAME=$3
-MAPS_PRIMARY_KEY=$4
+MAPS_ACCOUNT=$4
 INDOOR_MAPS_FILE="DT101_IndoorMapData.zip"
 
 # check if we need to log in
@@ -65,6 +65,13 @@ parse_header() {
     header["$k"]="$v"
   done
 }
+
+# get maps primary key
+MAPS_PRIMARY_KEY=$(az maps account keys list --name $MAPS_ACCOUNT --resource-group $RESOURCE_GROUP --query="primaryKey" -o tsv)
+if [ -z $MAPS_PRIMARY_KEY ]; then
+  echo -e "Error - getting maps primary key is failed"
+  exit 1
+fi
 
 # download indoor maps drawing file
 echo -e "download indoor maps file"
@@ -292,12 +299,12 @@ for row in $(echo -e "${rest_api_response}" | jq -r '.mapDataList[] | @base64');
 done
 
 # update WeDX Server web app
+echo -e "Tileset=${TILESET_ID}"
+echo -e "Stateset=${STATESET_ID}"
+echo -e "Dataset=${DATASET_ID}"
 CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__Maps__TileSetId=${TILESET_ID} --query "[?name=='WedxAppConfig__Maps__TileSetId'].[value]" -o tsv)
 CMDRUN=$(az webapp config appsettings set --name ${WEB_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WedxAppConfig__Maps__StateSetId=${STATESET_ID} --query "[?name=='WedxAppConfig__Maps__StateSetId'].[value]" -o tsv)
 CMDRUN=$(az webapp config appsettings set --name ${FUNC_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WEDX_MAPS_INDOOR_DATASET_ID=${DATASET_ID} --query "[?name=='WEDX_MAPS_INDOOR_DATASET_ID'].[value]" -o tsv)
 CMDRUN=$(az webapp config appsettings set --name ${FUNC_APP_NAME} --resource-group ${RESOURCE_GROUP} --settings WEDX_MAPS_INDOOR_STATESET_ID=${STATESET_ID} --query "[?name=='WEDX_MAPS_INDOOR_STATESET_ID'].[value]" -o tsv)
-echo -e "Tileset=${TILESET_ID}"
-echo -e "Stateset=${STATESET_ID}"
-echo -e "Dataset=${DATASET_ID}"
-echo -e ""
+
 echo -e "Complete configuration"

@@ -29,7 +29,7 @@ az account set --subscription 'MY-SUBSCRIPTIN-NAME'
 
 ```bash
 wget https://raw.githubusercontent.com/motojin/wedx-server/main/deployment/indoormaps-setup.sh && chmod +x ./indoormaps-setup.sh
-./indoormaps-setup.sh 'RESOURCE-GROUP-NAME' 'WEB-APP-NAME' 'FUNCTION-APP-NAME' 'MAPS-PRIMARY-KEY'
+./indoormaps-setup.sh 'RESOURCE-GROUP-NAME' 'WEB-APP-NAME' 'FUNCTION-APP-NAME' 'MAPS-ACCOUNT-NAME'
 rm ./indoormaps-setup.sh
 ```
 
