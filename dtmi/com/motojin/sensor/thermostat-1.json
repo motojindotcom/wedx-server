@@ -1,0 +1,68 @@
+{
+    "@id": "dtmi:com:motojin:Sensor:Thermostat;1",
+    "@type": "Interface",
+    "displayName": "Thermostat",
+    "description": "Thermostat Interface Model",
+    "contents": [
+        {
+            "@type": "Property",
+            "name": "DisplayName",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "Location",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "FirmwareVersion",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "Temperature",
+            "schema": "double"
+        },
+        {
+            "@type": "Property",
+            "name": "ComfortIndex",
+            "schema": "double"
+        },
+        {
+            "@type": "Relationship",
+            "name": "Contains",
+            "displayName": "Contains",
+            "properties": [
+                {
+                    "@type": "Property",
+                    "name": "OwnershipUser",
+                    "schema": "string"
+                },
+                {
+                    "@type": "Property",
+                    "name": "OwnershipDepartment",
+                    "schema": "string"
+                }
+            ]
+        },
+        {
+            "@type": "Relationship",
+            "name": "Serves",
+            "displayName": "Serves",
+            "properties": [
+                {
+                    "@type": "Property",
+                    "name": "OwnershipUser",
+                    "schema": "string"
+                },
+                {
+                    "@type": "Property",
+                    "name": "OwnershipDepartment",
+                    "schema": "string"
+                }
+            ]
+        }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+}
