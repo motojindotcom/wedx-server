@@ -1,0 +1,63 @@
+{
+    "@id": "dtmi:com:motojin:Sensor:Location;1",
+    "@type": "Interface",
+    "displayName": "Location",
+    "description": "Location Interface Model",
+    "contents": [
+        {
+            "@type": "Property",
+            "name": "DisplayName",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "FirmwareVersion",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "Latitude",
+            "schema": "double"
+        },
+        {
+            "@type": "Property",
+            "name": "Longitude",
+            "schema": "double"
+        },
+        {
+            "@type": "Relationship",
+            "name": "Contains",
+            "displayName": "Contains",
+            "properties": [
+                {
+                    "@type": "Property",
+                    "name": "OwnershipUser",
+                    "schema": "string"
+                },
+                {
+                    "@type": "Property",
+                    "name": "OwnershipDepartment",
+                    "schema": "string"
+                }
+            ]
+        },
+        {
+            "@type": "Relationship",
+            "name": "Serves",
+            "displayName": "Serves",
+            "properties": [
+                {
+                    "@type": "Property",
+                    "name": "OwnershipUser",
+                    "schema": "string"
+                },
+                {
+                    "@type": "Property",
+                    "name": "OwnershipDepartment",
+                    "schema": "string"
+                }
+            ]
+        }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+}
